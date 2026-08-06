@@ -1399,6 +1399,236 @@
     .why-card{ min-height:245px; }
   }
 
+
+  /* ---------- community poll ---------- */
+  .poll-section{
+    position:relative;
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 12% 15%, rgba(246,196,69,.11), transparent 28%),
+      radial-gradient(circle at 88% 85%, rgba(69,191,169,.09), transparent 30%),
+      var(--asphalt);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .poll-shell{
+    display:grid;
+    grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);
+    gap:28px;
+    align-items:stretch;
+  }
+  .poll-copy,
+  .poll-panel{
+    border:1px solid rgba(255,255,255,.09);
+    border-radius:20px;
+    background:linear-gradient(145deg, rgba(36,38,46,.90), rgba(15,16,20,.96));
+  }
+  .poll-copy{
+    padding:34px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+  .poll-copy h2{
+    font-size:clamp(32px,4.6vw,54px);
+    margin:16px 0 18px;
+  }
+  .poll-copy p{
+    margin:0;
+    max-width:520px;
+    color:var(--chalk-dim);
+    font-size:15px;
+    line-height:1.7;
+  }
+  .poll-note{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    margin-top:24px;
+    color:var(--chalk-dim);
+    font:600 10px/1.5 'JetBrains Mono',monospace;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+  }
+  .poll-note::before{
+    content:"";
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--ramp);
+    box-shadow:0 0 14px rgba(69,191,169,.8);
+  }
+  .poll-panel{
+    padding:24px;
+  }
+  .poll-question{
+    margin:0 0 18px;
+    color:var(--chalk);
+    font-size:17px;
+    font-weight:700;
+    line-height:1.45;
+  }
+  .poll-options{
+    display:grid;
+    gap:12px;
+  }
+  .poll-option{
+    width:100%;
+    min-height:92px;
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:15px;
+    align-items:center;
+    padding:17px 18px;
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:14px;
+    background:rgba(255,255,255,.025);
+    color:var(--chalk);
+    text-align:left;
+    cursor:pointer;
+    transition:transform .25s var(--ease), border-color .25s ease, background .25s ease, box-shadow .25s ease;
+  }
+  .poll-option:hover:not(:disabled){
+    transform:translateY(-3px);
+    border-color:rgba(246,196,69,.55);
+    background:rgba(246,196,69,.06);
+    box-shadow:0 18px 34px -22px rgba(0,0,0,.8);
+  }
+  .poll-option:disabled{
+    cursor:default;
+  }
+  .poll-option.is-selected{
+    border-color:var(--hazard);
+    background:rgba(246,196,69,.09);
+  }
+  .poll-option-icon{
+    width:46px;
+    height:46px;
+    border-radius:12px;
+    display:grid;
+    place-items:center;
+    flex-shrink:0;
+    background:rgba(246,196,69,.10);
+    border:1px solid rgba(246,196,69,.22);
+    font-size:22px;
+  }
+  .poll-option:nth-child(2) .poll-option-icon{
+    background:rgba(69,191,169,.10);
+    border-color:rgba(69,191,169,.24);
+  }
+  .poll-option-text strong{
+    display:block;
+    font-family:'Anton',sans-serif;
+    font-size:21px;
+    font-weight:400;
+    line-height:1.05;
+    text-transform:uppercase;
+    letter-spacing:.01em;
+  }
+  .poll-option-text span{
+    display:block;
+    margin-top:6px;
+    color:var(--chalk-dim);
+    font-size:12.5px;
+    line-height:1.45;
+  }
+  .poll-vote-label{
+    color:var(--hazard);
+    font:700 10px/1 'JetBrains Mono',monospace;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+  .poll-results{
+    display:none;
+    margin-top:22px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+  }
+  .poll-results.is-visible{
+    display:block;
+    animation:pollReveal .45s var(--ease) both;
+  }
+  @keyframes pollReveal{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .poll-results-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin-bottom:15px;
+  }
+  .poll-results-head strong{
+    font:700 11px/1 'JetBrains Mono',monospace;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--hazard);
+  }
+  .poll-total{
+    color:var(--chalk-dim);
+    font:600 10px/1 'JetBrains Mono',monospace;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+  .poll-result-row + .poll-result-row{
+    margin-top:16px;
+  }
+  .poll-result-top{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    margin-bottom:8px;
+    font-size:12.5px;
+  }
+  .poll-result-top span:first-child{
+    color:var(--chalk);
+    font-weight:700;
+  }
+  .poll-result-value{
+    color:var(--chalk-dim);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .poll-result-track{
+    height:11px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.07);
+  }
+  .poll-result-fill{
+    width:0%;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,var(--hazard),var(--hazard-soft));
+    transition:width .9s var(--ease);
+  }
+  .poll-result-row:nth-child(3) .poll-result-fill{
+    background:linear-gradient(90deg,var(--ramp),#77dfcb);
+  }
+  .poll-status{
+    min-height:18px;
+    margin:14px 0 0;
+    color:var(--chalk-dim);
+    font:600 10px/1.5 'JetBrains Mono',monospace;
+    text-align:center;
+  }
+  .poll-status.is-error{
+    color:var(--flag);
+  }
+  @media(max-width:900px){
+    .poll-shell{ grid-template-columns:1fr; }
+  }
+  @media(max-width:560px){
+    .poll-copy,
+    .poll-panel{ padding:20px; }
+    .poll-option{
+      grid-template-columns:auto 1fr;
+    }
+    .poll-vote-label{
+      grid-column:2;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -1414,6 +1644,7 @@
     <div class="nav-links">
       <a href="#games" data-nav="games">Games</a>
       <a href="#why" data-nav="why">Features</a>
+      <a href="#poll" data-nav="poll">Poll</a>
       <a href="#stats" data-nav="stats">Live Stats</a>
       <a href="#contact" data-nav="contact">Contact</a>
     </div>
@@ -1623,6 +1854,76 @@
     </div>
   </div>
 </section>
+
+
+<div class="hazard-strip thin" role="presentation"></div>
+
+<section id="poll" class="poll-section">
+  <div class="wrap">
+    <div class="poll-shell">
+      <div class="poll-copy" data-reveal="left">
+        <div class="eyebrow">Community vote</div>
+        <h2>What should we build next?</h2>
+        <p>Choose where Gogos Games Studios should focus its development time. Vote once, then see the live community results.</p>
+        <div class="poll-note">One vote per browser</div>
+      </div>
+
+      <div class="poll-panel" data-reveal="right">
+        <p class="poll-question">Which project do you want us to focus on?</p>
+
+        <div class="poll-options">
+          <button class="poll-option" type="button" data-poll-choice="awesome">
+            <span class="poll-option-icon" aria-hidden="true">🏍️</span>
+            <span class="poll-option-text">
+              <strong>More Awesome Bike Life Updates</strong>
+              <span>New bikes, features, events and improvements for the current game.</span>
+            </span>
+            <span class="poll-vote-label">Vote</span>
+          </button>
+
+          <button class="poll-option" type="button" data-poll-choice="scooter">
+            <span class="poll-option-icon" aria-hidden="true">🛴</span>
+            <span class="poll-option-text">
+              <strong>New Scooter Game</strong>
+              <span>A fresh realistic scooter game focused on better physics and a new experience.</span>
+            </span>
+            <span class="poll-vote-label">Vote</span>
+          </button>
+        </div>
+
+        <div class="poll-results" id="pollResults" aria-live="polite">
+          <div class="poll-results-head">
+            <strong>Live results</strong>
+            <span class="poll-total" id="pollTotalVotes">0 votes</span>
+          </div>
+
+          <div class="poll-result-row">
+            <div class="poll-result-top">
+              <span>Awesome Bike Life updates</span>
+              <span class="poll-result-value" id="pollAwesomeValue">0% · 0 votes</span>
+            </div>
+            <div class="poll-result-track">
+              <div class="poll-result-fill" id="pollAwesomeFill"></div>
+            </div>
+          </div>
+
+          <div class="poll-result-row">
+            <div class="poll-result-top">
+              <span>New scooter game</span>
+              <span class="poll-result-value" id="pollScooterValue">0% · 0 votes</span>
+            </div>
+            <div class="poll-result-track">
+              <div class="poll-result-fill" id="pollScooterFill"></div>
+            </div>
+          </div>
+        </div>
+
+        <p class="poll-status" id="pollStatus">Vote to reveal the live results.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <section id="stats" class="stats-section">
   <div class="wrap">
@@ -2033,6 +2334,192 @@
   }, 1000);
 
   startLiveStats();
+})();
+</script>
+
+
+<script>
+(() => {
+  "use strict";
+
+  const POLL_NAMESPACE = "gogosgamesstudio.github.io";
+  const POLL_ACTION = "community-poll";
+  const POLL_STORAGE_KEY = "gogos-community-poll-v2";
+  const POLL_KEYS = {
+    awesome: "awesome-bike-life-updates",
+    scooter: "new-scooter-game"
+  };
+
+  const buttons = [...document.querySelectorAll("[data-poll-choice]")];
+  const results = document.getElementById("pollResults");
+  const status = document.getElementById("pollStatus");
+  const totalVotes = document.getElementById("pollTotalVotes");
+  const awesomeValue = document.getElementById("pollAwesomeValue");
+  const scooterValue = document.getElementById("pollScooterValue");
+  const awesomeFill = document.getElementById("pollAwesomeFill");
+  const scooterFill = document.getElementById("pollScooterFill");
+
+  let busy = false;
+
+  function counterUrl(choice, readOnly = false) {
+    const key = POLL_KEYS[choice];
+    const params = new URLSearchParams();
+
+    if (readOnly) {
+      params.set("readOnly", "true");
+    }
+
+    // Prevent the browser or a proxy from returning an older result.
+    params.set("_", String(Date.now()));
+
+    return `https://counterapi.com/api/${encodeURIComponent(POLL_NAMESPACE)}/${encodeURIComponent(POLL_ACTION)}/${encodeURIComponent(key)}?${params.toString()}`;
+  }
+
+  async function requestCounter(choice, readOnly = false) {
+    const response = await fetch(counterUrl(choice, readOnly), {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Poll API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+    const value = Number(data.value);
+
+    if (!Number.isFinite(value)) {
+      throw new Error("Poll API returned an invalid count.");
+    }
+
+    return Math.max(0, value);
+  }
+
+  function setStatus(message, isError = false) {
+    if (!status) return;
+    status.textContent = message;
+    status.classList.toggle("is-error", isError);
+  }
+
+  function lockPoll(selectedChoice) {
+    buttons.forEach(button => {
+      button.disabled = true;
+
+      const selected = button.dataset.pollChoice === selectedChoice;
+      button.classList.toggle("is-selected", selected);
+
+      const label = button.querySelector(".poll-vote-label");
+      if (label) {
+        label.textContent = selected ? "Your vote" : "Voted";
+      }
+    });
+  }
+
+  function unlockPoll() {
+    buttons.forEach(button => {
+      button.disabled = false;
+      button.classList.remove("is-selected");
+
+      const label = button.querySelector(".poll-vote-label");
+      if (label) label.textContent = "Vote";
+    });
+  }
+
+  function renderResults(awesome, scooter) {
+    const total = awesome + scooter;
+    const awesomePercent = total > 0
+      ? Math.round((awesome / total) * 100)
+      : 0;
+    const scooterPercent = total > 0
+      ? 100 - awesomePercent
+      : 0;
+
+    const formatter = new Intl.NumberFormat("en-GB");
+
+    totalVotes.textContent =
+      `${formatter.format(total)} ${total === 1 ? "vote" : "votes"}`;
+
+    awesomeValue.textContent =
+      `${awesomePercent}% · ${formatter.format(awesome)} ${awesome === 1 ? "vote" : "votes"}`;
+
+    scooterValue.textContent =
+      `${scooterPercent}% · ${formatter.format(scooter)} ${scooter === 1 ? "vote" : "votes"}`;
+
+    results.classList.add("is-visible");
+
+    requestAnimationFrame(() => {
+      awesomeFill.style.width = `${awesomePercent}%`;
+      scooterFill.style.width = `${scooterPercent}%`;
+    });
+  }
+
+  async function loadResults() {
+    const [awesome, scooter] = await Promise.all([
+      requestCounter("awesome", true),
+      requestCounter("scooter", true)
+    ]);
+
+    renderResults(awesome, scooter);
+    return { awesome, scooter };
+  }
+
+  async function submitVote(choice) {
+    if (busy || localStorage.getItem(POLL_STORAGE_KEY)) return;
+
+    busy = true;
+    buttons.forEach(button => {
+      button.disabled = true;
+    });
+    setStatus("Sending your vote...");
+
+    try {
+      // A normal CounterAPI request increments this option once.
+      // Read-only requests below only retrieve the totals.
+      const selectedCount = await requestCounter(choice, false);
+      const otherChoice = choice === "awesome" ? "scooter" : "awesome";
+      const otherCount = await requestCounter(otherChoice, true);
+
+      const counts = choice === "awesome"
+        ? { awesome: selectedCount, scooter: otherCount }
+        : { awesome: otherCount, scooter: selectedCount };
+
+      localStorage.setItem(POLL_STORAGE_KEY, choice);
+      lockPoll(choice);
+      renderResults(counts.awesome, counts.scooter);
+      setStatus("Vote counted. These are the live community results.");
+    } catch (error) {
+      console.error("Poll vote failed:", error);
+      unlockPoll();
+      setStatus("Your vote was not counted. Please try again.", true);
+    } finally {
+      busy = false;
+    }
+  }
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      submitVote(button.dataset.pollChoice);
+    });
+  });
+
+  const savedVote = localStorage.getItem(POLL_STORAGE_KEY);
+
+  if (savedVote && POLL_KEYS[savedVote]) {
+    lockPoll(savedVote);
+    setStatus("Loading the live community results...");
+
+    loadResults()
+      .then(() => {
+        setStatus("You already voted. These are the live community results.");
+      })
+      .catch(error => {
+        console.error("Poll results failed:", error);
+        setStatus("The live results are temporarily unavailable.", true);
+      });
+  }
 })();
 </script>
 
