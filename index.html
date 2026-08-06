@@ -2344,7 +2344,13 @@
 
   const POLL_NAMESPACE = "gogosgamesstudio.github.io";
   const POLL_ACTION = "community-poll";
-  const POLL_STORAGE_KEY = "gogos-community-poll-v2";
+  const POLL_STORAGE_KEY = "gogos-community-poll-v3";
+  const LEGACY_STORAGE_KEYS = [
+    "gogos-community-poll-v2",
+    "gogos-community-poll-v1"
+  ];
+  const POLL_REFRESH_MS = 5000;
+
   const POLL_KEYS = {
     awesome: "awesome-bike-life-updates",
     scooter: "new-scooter-game"
@@ -2359,9 +2365,30 @@
   const awesomeFill = document.getElementById("pollAwesomeFill");
   const scooterFill = document.getElementById("pollScooterFill");
 
-  let busy = false;
+  if (
+    buttons.length === 0 ||
+    !results ||
+    !status ||
+    !totalVotes ||
+    !awesomeValue ||
+    !scooterValue ||
+    !awesomeFill ||
+    !scooterFill
+  ) {
+    console.warn("Community poll elements are missing.");
+    return;
+  }
 
-  function counterUrl(choice, readOnly = false) {
+  let voteBusy = false;
+  let refreshBusy = false;
+  let refreshTimer = null;
+  let lastCounts = null;
+
+  function makeNonce() {
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  }
+
+  function counterUrl(choice, readOnly) {
     const key = POLL_KEYS[choice];
     const params = new URLSearchParams();
 
@@ -2369,39 +2396,77 @@
       params.set("readOnly", "true");
     }
 
-    // Prevent the browser or a proxy from returning an older result.
-    params.set("_", String(Date.now()));
+    // Prevent browser/CDN caching so every device sees the latest totals.
+    params.set("_", makeNonce());
 
     return `https://counterapi.com/api/${encodeURIComponent(POLL_NAMESPACE)}/${encodeURIComponent(POLL_ACTION)}/${encodeURIComponent(key)}?${params.toString()}`;
   }
 
-  async function requestCounter(choice, readOnly = false) {
-    const response = await fetch(counterUrl(choice, readOnly), {
-      method: "GET",
-      cache: "no-store",
-      headers: {
-        "Accept": "application/json"
+  async function fetchCounter(choice, readOnly, timeoutMs = 8000) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(counterUrl(choice, readOnly), {
+        method: "GET",
+        cache: "no-store",
+        credentials: "omit",
+        headers: {
+          "Accept": "application/json",
+          "Cache-Control": "no-cache"
+        },
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        throw new Error(`Poll API returned ${response.status}`);
       }
-    });
 
-    if (!response.ok) {
-      throw new Error(`Poll API returned ${response.status}`);
+      const data = await response.json();
+      const value = Number(data?.value);
+
+      if (!Number.isFinite(value)) {
+        throw new Error("Poll API returned an invalid count.");
+      }
+
+      return Math.max(0, Math.trunc(value));
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
+  function findSavedVote() {
+    const currentVote = localStorage.getItem(POLL_STORAGE_KEY);
+
+    if (currentVote && POLL_KEYS[currentVote]) {
+      return currentVote;
     }
 
-    const data = await response.json();
-    const value = Number(data.value);
+    for (const legacyKey of LEGACY_STORAGE_KEYS) {
+      const legacyVote = localStorage.getItem(legacyKey);
 
-    if (!Number.isFinite(value)) {
-      throw new Error("Poll API returned an invalid count.");
+      if (legacyVote && POLL_KEYS[legacyVote]) {
+        localStorage.setItem(POLL_STORAGE_KEY, legacyVote);
+        return legacyVote;
+      }
     }
 
-    return Math.max(0, value);
+    return null;
   }
 
   function setStatus(message, isError = false) {
-    if (!status) return;
     status.textContent = message;
     status.classList.toggle("is-error", isError);
+  }
+
+  function formatUpdatedStatus(prefix = "Live results") {
+    const time = new Date().toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit"
+    });
+
+    return `${prefix} · updated ${time} · refreshes every 5s`;
   }
 
   function lockPoll(selectedChoice) {
@@ -2424,11 +2489,20 @@
       button.classList.remove("is-selected");
 
       const label = button.querySelector(".poll-vote-label");
-      if (label) label.textContent = "Vote";
+      if (label) {
+        label.textContent = "Vote";
+      }
     });
   }
 
   function renderResults(awesome, scooter) {
+    const countsChanged =
+      !lastCounts ||
+      lastCounts.awesome !== awesome ||
+      lastCounts.scooter !== scooter;
+
+    lastCounts = { awesome, scooter };
+
     const total = awesome + scooter;
     const awesomePercent = total > 0
       ? Math.round((awesome / total) * 100)
@@ -2454,33 +2528,81 @@
       awesomeFill.style.width = `${awesomePercent}%`;
       scooterFill.style.width = `${scooterPercent}%`;
     });
+
+    if (countsChanged && lastCounts) {
+      totalVotes.classList.remove("stat-flash");
+      awesomeValue.classList.remove("stat-flash");
+      scooterValue.classList.remove("stat-flash");
+
+      void totalVotes.offsetWidth;
+
+      totalVotes.classList.add("stat-flash");
+      awesomeValue.classList.add("stat-flash");
+      scooterValue.classList.add("stat-flash");
+    }
   }
 
-  async function loadResults() {
-    const [awesome, scooter] = await Promise.all([
-      requestCounter("awesome", true),
-      requestCounter("scooter", true)
-    ]);
+  async function loadLatestResults({ silent = false } = {}) {
+    if (refreshBusy) return;
 
-    renderResults(awesome, scooter);
-    return { awesome, scooter };
+    refreshBusy = true;
+
+    if (!silent) {
+      setStatus("Updating live community results...");
+    }
+
+    try {
+      const [awesome, scooter] = await Promise.all([
+        fetchCounter("awesome", true),
+        fetchCounter("scooter", true)
+      ]);
+
+      renderResults(awesome, scooter);
+      setStatus(formatUpdatedStatus());
+    } catch (error) {
+      console.error("Poll results refresh failed:", error);
+
+      if (lastCounts) {
+        setStatus("Could not refresh right now · retrying automatically", true);
+      } else {
+        setStatus("The live results are temporarily unavailable · retrying automatically", true);
+      }
+    } finally {
+      refreshBusy = false;
+    }
+  }
+
+  function stopLiveRefresh() {
+    if (refreshTimer) {
+      clearInterval(refreshTimer);
+      refreshTimer = null;
+    }
+  }
+
+  function startLiveRefresh() {
+    stopLiveRefresh();
+
+    refreshTimer = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        loadLatestResults({ silent: true });
+      }
+    }, POLL_REFRESH_MS);
   }
 
   async function submitVote(choice) {
-    if (busy || localStorage.getItem(POLL_STORAGE_KEY)) return;
+    if (voteBusy || findSavedVote()) return;
 
-    busy = true;
+    voteBusy = true;
     buttons.forEach(button => {
       button.disabled = true;
     });
     setStatus("Sending your vote...");
 
     try {
-      // A normal CounterAPI request increments this option once.
-      // Read-only requests below only retrieve the totals.
-      const selectedCount = await requestCounter(choice, false);
+      // A non-read-only request increments exactly the selected option.
+      const selectedCount = await fetchCounter(choice, false);
       const otherChoice = choice === "awesome" ? "scooter" : "awesome";
-      const otherCount = await requestCounter(otherChoice, true);
+      const otherCount = await fetchCounter(otherChoice, true);
 
       const counts = choice === "awesome"
         ? { awesome: selectedCount, scooter: otherCount }
@@ -2489,13 +2611,20 @@
       localStorage.setItem(POLL_STORAGE_KEY, choice);
       lockPoll(choice);
       renderResults(counts.awesome, counts.scooter);
-      setStatus("Vote counted. These are the live community results.");
+      setStatus(formatUpdatedStatus("Vote counted"));
+
+      startLiveRefresh();
+
+      // Re-check shortly after voting in case another device voted at the same time.
+      setTimeout(() => {
+        loadLatestResults({ silent: true });
+      }, 1200);
     } catch (error) {
       console.error("Poll vote failed:", error);
       unlockPoll();
       setStatus("Your vote was not counted. Please try again.", true);
     } finally {
-      busy = false;
+      voteBusy = false;
     }
   }
 
@@ -2505,20 +2634,38 @@
     });
   });
 
-  const savedVote = localStorage.getItem(POLL_STORAGE_KEY);
+  window.addEventListener("focus", () => {
+    if (findSavedVote()) {
+      loadLatestResults({ silent: true });
+    }
+  });
 
-  if (savedVote && POLL_KEYS[savedVote]) {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && findSavedVote()) {
+      loadLatestResults({ silent: true });
+    }
+  });
+
+  window.addEventListener("online", () => {
+    if (findSavedVote()) {
+      loadLatestResults({ silent: true });
+    }
+  });
+
+  window.addEventListener("beforeunload", stopLiveRefresh);
+
+  const savedVote = findSavedVote();
+
+  if (savedVote) {
     lockPoll(savedVote);
-    setStatus("Loading the live community results...");
+    setStatus("Loading the latest community results...");
 
-    loadResults()
-      .then(() => {
-        setStatus("You already voted. These are the live community results.");
-      })
-      .catch(error => {
-        console.error("Poll results failed:", error);
-        setStatus("The live results are temporarily unavailable.", true);
+    loadLatestResults()
+      .finally(() => {
+        startLiveRefresh();
       });
+  } else {
+    setStatus("Vote to reveal the live results.");
   }
 })();
 </script>
