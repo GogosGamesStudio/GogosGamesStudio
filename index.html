@@ -485,7 +485,7 @@ body.locked{ overflow:hidden; }
         <div class="tile wide"><span class="v" id="heroCcu">—</span><span class="s">Riding right now, across all three games</span></div>
         <div class="tile"><span class="v" id="heroVisits">—</span><span class="s">Total visits</span></div>
         <div class="tile"><span class="v" id="heroLikes">—</span><span class="s">Would ride again</span></div>
-        <div class="tile-foot"><span id="heroStatus">Connecting to Roblox</span><span><i id="heroCountdown">15</i>s</span></div>
+        <div class="tile-foot"><span id="heroStatus">Connecting to Roblox</span><span><i id="heroCountdown">15</i><span style="text-transform:none">s</span></span></div>
       </div>
     </div>
   </div>
@@ -1062,7 +1062,7 @@ if(fine && !calm){
    ========================================================== */
 const fmtShort = new Intl.NumberFormat('en-GB', { notation:'compact', maximumFractionDigits:1 });
 const fmtLong  = new Intl.NumberFormat('en-GB');
-const S = v => Number.isFinite(+v) ? fmtShort.format(+v) : '—';
+const S = v => { if(!Number.isFinite(+v)) return '—'; const a = Math.abs(+v); const f = (n, u) => (Math.round(n * 10) / 10).toString().replace(/\.0$/, '') + u; return a >= 1e9 ? f(v / 1e9, 'B') : a >= 1e6 ? f(v / 1e6, 'M') : a >= 1e4 ? f(v / 1e3, 'K') : fmtLong.format(Math.round(+v)); };
 const L = v => Number.isFinite(+v) ? fmtLong.format(+v)  : '—';
 const P = v => Number.isFinite(+v) ? Math.round(v * 100) + '%' : '—';
 function put(el, v){ if(!el) return; if(el.textContent !== String(v)) el.textContent = v; el.classList.toggle('waiting', String(v) === '—'); }
@@ -1262,22 +1262,21 @@ async function refresh(){
   try{
     const us = await resolveUniverses();
     const ids = us.map(u => u.universeId).join(',');
-    const votesP = viaHosts('games', '/v1/games/votes?universeIds=' + encodeURIComponent(ids)).catch(() => null);
+    const votesP = Promise.all(us.map(u => viaHosts('games', '/v1/games/' + u.universeId + '/votes').then(v => ({ key:u.key, v })).catch(() => null)));
     const srvP = viaHosts('games', '/v1/games/71704434889758/servers/Public?sortOrder=Desc&limit=10').catch(() => null);
     const games = await viaHosts('games', '/v1/games?universeIds=' + encodeURIComponent(ids));
     const byId = new Map((games.data || []).map(g => [String(g.id), g]));
     for(const u of us){
       const g = byId.get(u.universeId); if(!g) continue;
       live.games[u.key] = Object.assign({}, live.games[u.key] || {}, { playing:g.playing, visits:g.visits, favoritedCount:g.favoritedCount, maxPlayers:g.maxPlayers, created:g.created || (live.games[u.key]||{}).created, updated:g.updated || (live.games[u.key]||{}).updated });
+      /* the like ratio moves by a fraction of a percent a week: show the last known one until the live votes land */
+      if(live.games[u.key].upVotes == null){ const s = (SNAPSHOT.games || {})[u.key]; if(s && s.upVotes != null){ live.games[u.key].upVotes = s.upVotes; live.games[u.key].downVotes = s.downVotes; } }
     }
     live.mode = 'live'; live.at = new Date().toISOString();
     live.samples.push({ t:Date.now(), v:totals().playing }); if(live.samples.length > 400) live.samples.shift();
     render();
     const [votes, srv] = await Promise.all([votesP, srvP]);
-    if(votes && Array.isArray(votes.data)){
-      const vm = new Map(votes.data.map(v => [String(v.id), v]));
-      for(const u of us){ const v = vm.get(u.universeId); if(v && live.games[u.key]) Object.assign(live.games[u.key], { upVotes:v.upVotes, downVotes:v.downVotes }); }
-    }
+    for(const r of votes || []){ if(r && r.v && r.v.upVotes != null && live.games[r.key]) Object.assign(live.games[r.key], { upVotes:r.v.upVotes, downVotes:r.v.downVotes }); }
     if(srv && Array.isArray(srv.data)){ live.servers = srv.data; live.serversLoaded = true; }
     render();
     remember();
