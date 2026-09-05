@@ -299,27 +299,6 @@ section{ position:relative; }
 .film-dots i::after{ content:""; position:absolute; inset:0; background:var(--ember); transform:scaleX(var(--f,0)); transform-origin:left; }
 .film-btn{ width:34px; height:34px; border-radius:50%; border:1px solid var(--line-2); background:rgba(255,255,255,.03); display:grid; place-items:center; cursor:pointer; }
 .film-btn svg{ width:12px; height:12px; }
-.trace{ margin-top:34px; border-top:1px solid var(--line); padding-top:16px; }
-.trace-head{ display:flex; justify-content:space-between; gap:12px; font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:8px; }
-#trace{ width:100%; height:92px; display:block; }
-
-/* ---------- servers ---------- */
-.servers{ background:var(--g1); }
-.srv{ border:1px solid var(--line-2); border-radius:8px; overflow:hidden; background:var(--g2); }
-.srv-head{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; padding:16px 20px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--ink-3); }
-.srv-head b{ color:var(--ink); font-weight:500; }
-.srv table{ width:100%; border-collapse:collapse; font-family:var(--mono); font-size:12px; }
-.srv th{ text-align:left; font-weight:500; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); padding:10px 20px; border-bottom:1px solid var(--line); }
-.srv td{ padding:12px 20px; border-bottom:1px solid var(--line); vertical-align:middle; font-variant-numeric:tabular-nums; color:var(--ink-2); }
-.srv tr:last-child td{ border-bottom:0; }
-.srv td.id{ color:var(--ink-3); }
-.srv .cap{ display:grid; grid-template-columns:1fr 54px; gap:12px; align-items:center; }
-.srv .cap .bar{ height:5px; background:var(--g4); border-radius:99px; overflow:hidden; }
-.srv .cap .bar i{ display:block; height:100%; width:var(--w,0%); background:var(--ember); transition:width .8s var(--ease-out); }
-.srv .cap b{ color:var(--ink); font-weight:500; }
-.srv td.right{ text-align:right; }
-.srv .good{ color:var(--ink); }
-.srv-empty td{ color:var(--ink-3); padding:26px 20px; text-align:center; }
 
 /* ---------- approach ---------- */
 .band{ position:relative; height:clamp(280px,44vw,520px); overflow:hidden; }
@@ -420,7 +399,6 @@ body.locked{ overflow:hidden; }
   .specs{ grid-template-columns:1fr 1fr; }
   .live-row{ grid-template-columns:1fr 1fr 1fr; }
   .race div{ grid-template-columns:96px 1fr 60px; }
-  .srv th:nth-child(4), .srv td:nth-child(4){ display:none; }
   .figures td.n{ display:none; }
   .figures tbody th{ width:auto; }
   .rules{ grid-template-columns:1fr; column-gap:0; }
@@ -452,7 +430,6 @@ body.locked{ overflow:hidden; }
       <a href="#games" data-nav="games">Games</a>
       <a href="#machine" data-nav="machine">The machine</a>
       <a href="#numbers" data-nav="numbers">Numbers</a>
-      <a href="#servers" data-nav="servers">Servers</a>
       <a href="#community" data-nav="community">Community</a>
     </div>
     <div class="nav-right">
@@ -680,29 +657,6 @@ body.locked{ overflow:hidden; }
       <div class="film-dots" aria-hidden="true"><i data-dot="0"></i><i data-dot="1"></i><i data-dot="2"></i></div>
     </div>
 
-    <div class="trace">
-      <div class="trace-head"><span>Riders online · this session, sampled every 15 s</span><span id="traceRange">—</span></div>
-      <canvas id="trace" aria-label="Line chart of riders online over this browsing session"></canvas>
-    </div>
-  </div>
-</section>
-
-<section class="servers sec" id="servers">
-  <div class="shell">
-    <div class="sec-head">
-      <p class="label ember" data-in>Live servers</p>
-      <h2 class="words" data-in style="--d:.05s">The fullest rooms in Drive A Kukirin.</h2>
-      <p class="lede" data-in style="--d:.1s">Public servers, straight from Roblox. Five riders per server keeps the physics honest — every scooter on the road is simulated at full rate.</p>
-    </div>
-    <div class="srv" data-in>
-      <div class="srv-head"><span>Drive A Kukirin · public servers · top <b id="srvCount">—</b> by occupancy</span><span id="srvStatus">—</span></div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr><th>Server</th><th>Riders</th><th>Frame rate</th><th class="right">Ping</th></tr></thead>
-          <tbody id="srvBody"><tr class="srv-empty"><td colspan="4">Waiting for server data</td></tr></tbody>
-        </table>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -849,7 +803,7 @@ const smooth = (t) => t * t * (3 - 2 * t);
 
 /* Snapshot taken from the public Roblox API when this page was built.
    Shown (and labelled) until the live fetch replaces it. */
-const SNAPSHOT = {"at":"2026-09-05T05:21:07Z","games":{"kukirin":{"universeId":10634461028,"playing":2762,"visits":8137425,"favoritedCount":16444,"upVotes":9242,"downVotes":891,"maxPlayers":5,"created":"2026-08-05","updated":"2026-09-01"},"ausom":{"universeId":10199327179,"playing":391,"visits":30149174,"favoritedCount":37196,"upVotes":15905,"downVotes":2326,"maxPlayers":10,"created":"2026-05-21","updated":"2026-08-19"},"awesome":{"universeId":10358585896,"playing":73,"visits":5095328,"favoritedCount":8407,"upVotes":1303,"downVotes":555,"maxPlayers":15,"created":"2026-06-19","updated":"2026-08-09"}},"servers":[{"id":"e6e23185","playing":5,"maxPlayers":5,"fps":60,"ping":72},{"id":"455ab556","playing":5,"maxPlayers":5,"fps":60,"ping":72},{"id":"08598b4c","playing":5,"maxPlayers":5,"fps":60,"ping":55},{"id":"1a834d92","playing":5,"maxPlayers":5,"fps":60,"ping":64},{"id":"327db476","playing":5,"maxPlayers":5,"fps":60,"ping":125},{"id":"86e1a003","playing":5,"maxPlayers":5,"fps":60,"ping":94},{"id":"0d570a8c","playing":5,"maxPlayers":5,"fps":60,"ping":129},{"id":"7ce68209","playing":5,"maxPlayers":5,"fps":60,"ping":313}]};
+const SNAPSHOT = {"at":"2026-09-05T05:21:07Z","games":{"kukirin":{"universeId":10634461028,"playing":2762,"visits":8137425,"favoritedCount":16444,"upVotes":9242,"downVotes":891,"maxPlayers":5,"created":"2026-08-05","updated":"2026-09-01"},"ausom":{"universeId":10199327179,"playing":391,"visits":30149174,"favoritedCount":37196,"upVotes":15905,"downVotes":2326,"maxPlayers":10,"created":"2026-05-21","updated":"2026-08-19"},"awesome":{"universeId":10358585896,"playing":73,"visits":5095328,"favoritedCount":8407,"upVotes":1303,"downVotes":555,"maxPlayers":15,"created":"2026-06-19","updated":"2026-08-09"}}};
 
 const GAMES = [
   { key:'kukirin', name:'Drive A Kukirin',     placeId:'71704434889758',  universeId:'10634461028', launched:'2026-08-05' },
@@ -1078,11 +1032,23 @@ async function getJSON(url, ms){
   finally{ clearTimeout(t); }
 }
 /* every route is tried at the same time and the first good answer wins — the direct call usually dies on CORS,
-   the proxy answers in under a second, and the last resort only starts if nothing has landed after 1.5 s */
+   the proxy answers most calls in under a second, and the public relays start after a short head start.
+   Roblox's proxy refuses some endpoints (the server list among them); once a call has been seen to need a relay,
+   the relays start straight away for that kind of call. */
 const wait = ms => new Promise(r => setTimeout(r, ms));
+const relays = [
+  u => 'https://api.cors.lol/?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u)
+];
+const routeMemo = {};
 async function viaHosts(kind, path){
-  const tries = HOSTS[kind].map(h => getJSON(h + path, 6000));
-  tries.push(wait(1500).then(() => getJSON('https://api.allorigins.win/raw?url=' + encodeURIComponent(HOSTS[kind][0] + path), 9000)));
+  const key = kind + path.split('?')[0].replace(/\d+/g, '#');
+  const needRelay = routeMemo[key] === 'relay';
+  const url = HOSTS[kind][0] + path;
+  let done = false;
+  const tries = HOSTS[kind].map(h => getJSON(h + path, 6000).then(r => { done = true; routeMemo[key] = 'host'; return r; }));
+  const delays = needRelay ? [0, 1500] : [1200, 1800];
+  relays.forEach((mk, i) => tries.push(wait(delays[i]).then(() => { if(done) throw new Error('settled'); return getJSON(mk(url), 12000); }).then(r => { done = true; if(routeMemo[key] !== 'host') routeMemo[key] = 'relay'; return r; })));
   return Promise.any(tries);
 }
 
@@ -1100,7 +1066,7 @@ function roll(el, to, fmt, ms){
   })(t0);
 }
 
-const live = { mode:'waiting', at:null, games:{}, servers:[], samples:[] };
+const live = { mode:'waiting', at:null, games:{} };
 let universes = null;
 
 function totals(){
@@ -1180,8 +1146,6 @@ function render(){
   put($('heroStatus'), status);
   put($('tblCap'), 'Combined across three experiences · ' + status.toLowerCase());
   put($('footStamp'), 'figures ' + status.toLowerCase());
-  renderServers();
-  drawTrace();
 }
 
 /* replay one film scene's numbers from zero */
@@ -1202,47 +1166,6 @@ function playScene(i){
   }
 }
 
-function renderServers(){
-  const body = $('srvBody'); if(!body) return;
-  const rows = live.servers.slice(0, 8);
-  put($('srvCount'), rows.length || '—');
-  put($('srvStatus'), live.mode === 'live' ? 'Live' : live.mode === 'cached' ? 'Last live' : live.mode === 'snapshot' ? 'Snapshot' : 'Connecting');
-  if(!rows.length){ body.innerHTML = '<tr class="srv-empty"><td colspan="4">' + (live.serversLoaded ? 'No public servers reported' : 'Waiting for server data') + '</td></tr>'; return; }
-  body.innerHTML = rows.map((s, i) => {
-    const pct = s.maxPlayers ? s.playing / s.maxPlayers * 100 : 0;
-    const fps = Math.round(s.fps || 0), ping = Math.round(s.ping || 0);
-    return '<tr><td class="id">#' + String(i+1).padStart(2,'0') + ' · ' + (s.id || '').slice(0,8) + '</td>' +
-      '<td><div class="cap"><div class="bar"><i style="--w:' + pct.toFixed(0) + '%"></i></div><b>' + s.playing + ' / ' + s.maxPlayers + '</b></div></td>' +
-      '<td class="' + (fps >= 55 ? 'good' : '') + '">' + fps + ' fps</td>' +
-      '<td class="right ' + (ping <= 120 ? 'good' : '') + '">' + ping + ' ms</td></tr>';
-  }).join('');
-}
-
-/* session trace */
-function drawTrace(){
-  const c = $('trace'); if(!c) return;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const w = c.clientWidth, h = c.clientHeight; if(!w) return;
-  c.width = w * dpr; c.height = h * dpr;
-  const g = c.getContext('2d'); g.scale(dpr, dpr); g.clearRect(0,0,w,h);
-  const pts = live.samples; const cs = getComputedStyle(document.documentElement);
-  const ink3 = cs.getPropertyValue('--ink-3').trim(), emb = cs.getPropertyValue('--ember').trim(), line = cs.getPropertyValue('--line-2').trim();
-  g.strokeStyle = line; g.lineWidth = 1;
-  for(let i = 0; i < 3; i++){ const y = 8 + (h - 16) * i / 2; g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
-  if(pts.length < 2){
-    g.fillStyle = ink3; g.font = '500 10px IBM Plex Mono, monospace';
-    g.fillText(pts.length ? 'First sample taken — the line draws as the page stays open' : 'Waiting for the first sample', 0, h - 2);
-    put($('traceRange'), pts.length ? L(pts[0].v) + ' riders' : '—'); return;
-  }
-  const vs = pts.map(p => p.v), lo = Math.min(...vs), hi = Math.max(...vs), span = Math.max(hi - lo, Math.max(4, hi * .04));
-  const X = i => i / (pts.length - 1) * (w - 2) + 1, Y = v => 8 + (h - 16) * (1 - (v - (lo - span * .1)) / (span * 1.2));
-  g.beginPath(); pts.forEach((p,i) => i ? g.lineTo(X(i), Y(p.v)) : g.moveTo(X(i), Y(p.v)));
-  g.lineWidth = 1.6; g.strokeStyle = emb; g.stroke();
-  g.lineTo(X(pts.length-1), h); g.lineTo(X(0), h); g.closePath(); g.fillStyle = 'rgba(232,134,46,.10)'; g.fill();
-  const last = pts[pts.length-1]; g.fillStyle = emb; g.beginPath(); g.arc(X(pts.length-1), Y(last.v), 3, 0, Math.PI*2); g.fill();
-  put($('traceRange'), L(lo) + ' – ' + L(hi) + ' riders · ' + pts.length + ' samples');
-}
-window.addEventListener('resize', drawTrace, { passive:true });
 
 /* fetch cycle */
 async function resolveUniverses(){
@@ -1263,7 +1186,6 @@ async function refresh(){
     const us = await resolveUniverses();
     const ids = us.map(u => u.universeId).join(',');
     const votesP = Promise.all(us.map(u => viaHosts('games', '/v1/games/' + u.universeId + '/votes').then(v => ({ key:u.key, v })).catch(() => null)));
-    const srvP = viaHosts('games', '/v1/games/71704434889758/servers/Public?sortOrder=Desc&limit=10').catch(() => null);
     const games = await viaHosts('games', '/v1/games?universeIds=' + encodeURIComponent(ids));
     const byId = new Map((games.data || []).map(g => [String(g.id), g]));
     for(const u of us){
@@ -1273,11 +1195,9 @@ async function refresh(){
       if(live.games[u.key].upVotes == null){ const s = (SNAPSHOT.games || {})[u.key]; if(s && s.upVotes != null){ live.games[u.key].upVotes = s.upVotes; live.games[u.key].downVotes = s.downVotes; } }
     }
     live.mode = 'live'; live.at = new Date().toISOString();
-    live.samples.push({ t:Date.now(), v:totals().playing }); if(live.samples.length > 400) live.samples.shift();
     render();
-    const [votes, srv] = await Promise.all([votesP, srvP]);
+    const votes = await votesP;
     for(const r of votes || []){ if(r && r.v && r.v.upVotes != null && live.games[r.key]) Object.assign(live.games[r.key], { upVotes:r.v.upVotes, downVotes:r.v.downVotes }); }
-    if(srv && Array.isArray(srv.data)){ live.servers = srv.data; live.serversLoaded = true; }
     render();
     remember();
   }catch(e){
@@ -1287,13 +1207,13 @@ async function refresh(){
 
 /* the last live figures this browser saw come back instantly on the next visit, then get replaced */
 function remember(){
-  try{ localStorage.setItem('ggs-live', JSON.stringify({ at:live.at, games:live.games, servers:live.servers.slice(0, 8) })); }catch(e){}
+  try{ localStorage.setItem('ggs-live', JSON.stringify({ at:live.at, games:live.games })); }catch(e){}
 }
 function recall(){
   try{
     const c = JSON.parse(localStorage.getItem('ggs-live') || 'null');
     if(!c || !c.games || Date.now() - new Date(c.at).getTime() > 6 * 3600e3) return false;
-    live.at = c.at; live.games = c.games; live.servers = c.servers || []; live.serversLoaded = live.servers.length > 0; live.mode = 'cached';
+    live.at = c.at; live.games = c.games; live.mode = 'cached';
     render(); return true;
   }catch(e){ return false; }
 }
@@ -1301,7 +1221,7 @@ function recall(){
 /* the built-in snapshot is only a stand-in for when Roblox cannot be reached (offline, or a host that blocks the API) */
 function useSnapshot(){
   if(live.mode !== 'waiting') return;
-  try{ live.at = SNAPSHOT.at; live.games = JSON.parse(JSON.stringify(SNAPSHOT.games)); live.servers = SNAPSHOT.servers || []; live.serversLoaded = true; live.mode = 'snapshot'; }catch(e){ return; }
+  try{ live.at = SNAPSHOT.at; live.games = JSON.parse(JSON.stringify(SNAPSHOT.games)); live.mode = 'snapshot'; }catch(e){ return; }
   render();
   put($('heroStatus'), 'Snapshot · live feed unavailable here');
 }
